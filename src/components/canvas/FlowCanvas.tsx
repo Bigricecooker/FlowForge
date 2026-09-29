@@ -49,7 +49,7 @@ export default function FlowCanvas({ onOpenShortcuts }: FlowCanvasProps) {
 
 function Canvas({ onOpenShortcuts }: FlowCanvasProps) {
   const bodyRef = useRef<HTMLDivElement>(null);
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, fitView } = useReactFlow();
 
   const nodes = useFlowStore((state) => state.nodes);
   const edges = useFlowStore((state) => state.edges);
@@ -68,6 +68,7 @@ function Canvas({ onOpenShortcuts }: FlowCanvasProps) {
   const endTransaction = useFlowStore((state) => state.endTransaction);
   const undo = useFlowStore((state) => state.undo);
   const redo = useFlowStore((state) => state.redo);
+  const applyAutoLayout = useFlowStore((state) => state.applyAutoLayout);
 
   const draggingKind = useDragStore((state) => state.kind);
   const dragPointer = useDragStore((state) => state.pointer);
@@ -187,11 +188,31 @@ function Canvas({ onOpenShortcuts }: FlowCanvasProps) {
     setCursor(screenToFlowPosition({ x: event.clientX, y: event.clientY }));
   };
 
+  /**
+   * 整理布局：位置变更属于文档（可撤销），随后把视图挪到看得见的地方属于视口变化（不进历史），
+   * 所以两者刻意分开——Ctrl+Z 会还原布局，但不会把视口跳回去。
+   */
+  const handleAutoLayout = () => {
+    applyAutoLayout();
+    window.requestAnimationFrame(() => {
+      void fitView({ padding: 0.2, duration: 300 });
+    });
+  };
+
   return (
     <div className={styles.wrap}>
       <div className={styles.toolbar}>
         <span className={styles.toolbarTitle}>画布</span>
         <span className={styles.spacer} />
+        <button
+          type="button"
+          className={styles.textButton}
+          onClick={handleAutoLayout}
+          disabled={nodes.length === 0}
+          title="按连线关系重新分层排布（可用 Ctrl+Z 撤销）"
+        >
+          整理布局
+        </button>
         <EdgeTypeSwitch value={edgeType} onChange={setEdgeType} />
         <button
           type="button"

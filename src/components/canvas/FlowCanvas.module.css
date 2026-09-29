@@ -47,6 +47,27 @@
   background: var(--accent-soft);
 }
 
+.textButton {
+  padding: 2px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-panel);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  line-height: 18px;
+}
+
+.textButton:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.textButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .body {
   position: relative;
   flex: 1;

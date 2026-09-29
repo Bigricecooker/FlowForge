@@ -82,6 +82,7 @@ npm run format   # Prettier
 | 节点外形、锚点、内联改名 | `components/canvas/nodes/FlowNode.tsx`、`NodeShape.tsx` |
 | 节点/连线的增删改、剪贴板 | `src/store/flowStore.ts` |
 | 边型定义与名字映射 | `src/lib/edgeTypes.ts` |
+| 一键自动布局（dagre） | `src/lib/autoLayout.ts`（纯函数）；按钮与 fitView 在 `components/canvas/FlowCanvas.tsx` |
 | 快捷键浮层的文案内容 | `src/lib/shortcuts.ts`（单一数据源） |
 | 右侧暂留区 | `components/inspector/RightPanel.tsx` |
 

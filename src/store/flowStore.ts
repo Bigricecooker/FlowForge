@@ -5,6 +5,7 @@ import { create } from 'zustand';
 
 import { getShapeDef } from '../components/palette/shapeDefs';
 import type { ShapeKind } from '../components/palette/shapeDefs';
+import { computeAutoLayout } from '../lib/autoLayout';
 import { toFlowEdgeType } from '../lib/edgeTypes';
 import type { EdgeType } from '../lib/edgeTypes';
 import type { FlowEdge, FlowNode } from './types';
@@ -52,6 +53,8 @@ interface FlowState {
   pasteClipboard: () => void;
   selectAll: () => void;
   clearSelection: () => void;
+  /** 用 dagre 重新分层排布全部节点，整次布局算一步撤销。 */
+  applyAutoLayout: () => void;
 
   /** 开始一次连续手势：记录手势前的文档。 */
   beginTransaction: () => void;
@@ -263,6 +266,18 @@ export const useFlowStore = create<FlowState>((set) => ({
       nodes: deselectAll(state.nodes),
       edges: deselectAll(state.edges),
     })),
+
+  applyAutoLayout: () =>
+    set((state) => {
+      if (state.nodes.length === 0) return state;
+      const positions = computeAutoLayout(state.nodes, state.edges);
+      return withHistory(state, {
+        nodes: state.nodes.map((node) => {
+          const next = positions.get(node.id);
+          return next ? { ...node, position: next } : node;
+        }),
+      });
+    }),
 
   beginTransaction: () =>
     set((state) => (state.pending ? state : { pending: takeSnapshot(state) })),
