@@ -36,6 +36,7 @@
   /* ---- 布局尺寸 ---- */
   --left-w: 260px;
   --right-w: 320px;
+  --rail-w: 48px;
   --toolbar-h: 40px;
   --statusbar-h: 24px;
   --splitter-w: 5px;

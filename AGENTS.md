@@ -62,11 +62,16 @@ npm run format   # Prettier
 - 选中态不单独存：React Flow 会把 `selected` 写回节点/连线对象，过滤即可
 - 删除只走 `flowStore.deleteSelection()` 一条路径；`deleteKeyCode` 已置 `null`，不要重新打开，
   否则删除双写、撤销无法统一记录
+- 暂留区的面板开关是纯界面状态，且只被那一个子树使用 → 留在组件本地 state，
+  不进 store、也不进撤销栈
 
 ### 功能边界
 
 - 保存/打开、导入导出、暗色主题均为**后置项**，等明确要求再加
-- 右侧暂留区保持空壳，只暴露选中上下文
+- 暂留区是**面板宿主**：谁能出现在这里完全由 `components/inspector/panels.tsx` 的注册表决定，
+  新增一个界面 = 加一条注册项，布局代码不用动
+- 面板**一次只显示一个**（分页，不是分栏）；顶栏分页在点过控件栏之后才出现
+- 右侧控件栏固定宽度、不可折叠；当前只有「节点属性」一个面板，属性只读且所有图形相同
 
 ## 代码地图
 
@@ -84,7 +89,10 @@ npm run format   # Prettier
 | 边型定义与名字映射 | `src/lib/edgeTypes.ts` |
 | 一键自动布局（dagre） | `src/lib/autoLayout.ts`（纯函数）；按钮与 fitView 在 `components/canvas/FlowCanvas.tsx` |
 | 快捷键浮层的文案内容 | `src/lib/shortcuts.ts`（单一数据源） |
-| 右侧暂留区 | `components/inspector/RightPanel.tsx` |
+| 暂留区容器（顶栏分页 + 面板宿主） | `components/inspector/ReservedArea.tsx` |
+| **新增一个暂留区界面** | `components/inspector/panels.tsx`（注册表加一条即可） |
+| 右侧控件栏 | `components/inspector/PanelRail.tsx` |
+| 节点属性面板 | `components/inspector/NodePropertiesPanel.tsx` |
 
 ## 已踩过的坑
 

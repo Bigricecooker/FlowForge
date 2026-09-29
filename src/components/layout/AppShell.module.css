@@ -26,7 +26,8 @@
 
 .right {
   flex: none;
-  width: var(--right-w);
+  /* 面板区可收起（--right-w 归零），控件栏始终保留 */
+  width: calc(var(--right-w) + var(--rail-w));
   min-width: 0;
   overflow: hidden;
 }

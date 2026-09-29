@@ -1,0 +1,52 @@
+.rail {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 4px;
+  width: var(--rail-w);
+  padding: 6px 0;
+  border-left: 1px solid var(--border);
+  background: var(--bg-panel);
+}
+
+.button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+}
+
+.button svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.button:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.button[data-active] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* 已打开但未激活：右下角一个小点，避免和激活态混淆 */
+.button[data-open]:not([data-active])::after {
+  content: '';
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.6;
+}

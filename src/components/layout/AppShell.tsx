@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 
 import FlowCanvas from '../canvas/FlowCanvas';
 import ShortcutsHelp from '../help/ShortcutsHelp';
-import RightPanel from '../inspector/RightPanel';
+import ReservedArea from '../inspector/ReservedArea';
 import ShapeLibrary from '../palette/ShapeLibrary';
 import { useFlowStore } from '../../store/flowStore';
 import { useViewStore } from '../../store/viewStore';
@@ -13,7 +13,6 @@ import StatusBar from './StatusBar';
 
 const LEFT = { default: 260, min: 200, max: 400 };
 const RIGHT = { default: 320, min: 260, max: 520 };
-const RIGHT_COLLAPSED_W = 36;
 
 type ShellVars = CSSProperties & { '--left-w': string; '--right-w': string };
 
@@ -48,9 +47,10 @@ export default function AppShell() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // 收起时面板区宽度归零，右侧控件栏固定保留（--rail-w 在 tokens.css）
   const shellStyle: ShellVars = {
     '--left-w': `${leftWidth}px`,
-    '--right-w': `${rightCollapsed ? RIGHT_COLLAPSED_W : rightWidth}px`,
+    '--right-w': `${rightCollapsed ? 0 : rightWidth}px`,
   };
 
   return (
@@ -86,7 +86,10 @@ export default function AppShell() {
           )}
 
           <aside className={styles.right}>
-            <RightPanel collapsed={rightCollapsed} onToggle={() => setRightCollapsed((v) => !v)} />
+            <ReservedArea
+              collapsed={rightCollapsed}
+              onToggle={() => setRightCollapsed((value) => !value)}
+            />
           </aside>
         </div>
 
