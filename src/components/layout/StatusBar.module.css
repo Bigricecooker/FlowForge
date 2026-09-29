@@ -1,0 +1,26 @@
+.bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 16px;
+  height: var(--statusbar-h);
+  padding: 0 10px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-statusbar);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  user-select: none;
+}
+
+.item {
+  white-space: nowrap;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.brand {
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}

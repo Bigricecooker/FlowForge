@@ -1,0 +1,58 @@
+/**
+ * 全局设计变量。组件样式一律通过 var(--x) 取值，不写死色值，
+ * 这样后续换肤 / 加暗色只需替换本文件。
+ */
+:root {
+  color-scheme: light;
+
+  /* ---- 底色 ---- */
+  --bg-app: #f5f6f8;
+  --bg-panel: #ffffff;
+  --bg-canvas: #fafafb;
+  --bg-toolbar: #ffffff;
+  --bg-statusbar: #f0f2f5;
+  --bg-hover: #f2f4f7;
+  --bg-active: #eaf1fe;
+
+  /* ---- 描边 ---- */
+  --border: #e6e8eb;
+  --border-strong: #d0d5dd;
+
+  /* ---- 文字 ---- */
+  --text: #1f2328;
+  --text-muted: #6b7280;
+
+  /* ---- 强调 / 画布元素 ---- */
+  --accent: #2563eb;
+  --accent-soft: #eaf1fe;
+  --edge: #94a3b8;
+  --grid-dot: #d9dde3;
+
+  /* ---- 节点 ---- */
+  --node-fill: #ffffff;
+  --node-stroke: #d0d5dd;
+  --node-radius: 8px;
+
+  /* ---- 布局尺寸 ---- */
+  --left-w: 260px;
+  --right-w: 320px;
+  --toolbar-h: 40px;
+  --statusbar-h: 24px;
+  --splitter-w: 5px;
+
+  /* ---- 排版 ---- */
+  --font-ui: 'Segoe UI', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Cascadia Mono', Consolas, 'Courier New', monospace;
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 13px;
+  --fs-lg: 14px;
+
+  /* ---- 圆角 / 阴影 ---- */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --shadow-panel: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-pop: 0 12px 32px rgba(16, 24, 40, 0.16);
+  --overlay: rgba(16, 24, 40, 0.32);
+}

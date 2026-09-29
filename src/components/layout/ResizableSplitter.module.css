@@ -1,0 +1,21 @@
+.splitter {
+  position: relative;
+  flex: none;
+  width: var(--splitter-w);
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.splitter::before {
+  content: '';
+  position: absolute;
+  inset: 0 2px;
+  background: var(--border);
+  transition: background 120ms ease;
+}
+
+.splitter:hover::before,
+.splitter[data-dragging='true']::before {
+  inset: 0 1px;
+  background: var(--accent);
+}

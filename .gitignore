@@ -1,0 +1,9 @@
+node_modules/
+.npm-cache/
+.verify/
+dist/
+release/
+*.local
+*.log
+.vite/
+.DS_Store
