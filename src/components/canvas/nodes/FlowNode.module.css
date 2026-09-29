@@ -42,6 +42,18 @@
   overflow-wrap: anywhere;
 }
 
+/* 内联改名输入框：占位与标签一致，避免编辑时节点内容跳动 */
+.editor {
+  width: calc(100% - 16px);
+  min-width: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  font-family: inherit;
+  resize: none;
+  outline: none;
+}
+
 /*
  * 锚点尺寸保持 React Flow 的默认 6px：它按锚点外沿计算连线端点，
  * 改尺寸会让端点跟着外移。命中区域靠 ::after 撑大，元素自身的盒模型不变，

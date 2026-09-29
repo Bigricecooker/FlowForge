@@ -59,6 +59,11 @@ function Canvas({ onOpenShortcuts }: FlowCanvasProps) {
   const addNode = useFlowStore((state) => state.addNode);
   const edgeType = useFlowStore((state) => state.edgeType);
   const setEdgeType = useFlowStore((state) => state.setEdgeType);
+  const deleteSelection = useFlowStore((state) => state.deleteSelection);
+  const copySelection = useFlowStore((state) => state.copySelection);
+  const pasteClipboard = useFlowStore((state) => state.pasteClipboard);
+  const selectAll = useFlowStore((state) => state.selectAll);
+  const clearSelection = useFlowStore((state) => state.clearSelection);
 
   const draggingKind = useDragStore((state) => state.kind);
   const dragPointer = useDragStore((state) => state.pointer);
@@ -83,6 +88,50 @@ function Canvas({ onOpenShortcuts }: FlowCanvasProps) {
       ),
     [],
   );
+
+  // 编辑快捷键统一在这里接管：React Flow 自带的删除键关掉（deleteKeyCode={null}），
+  // 否则删除会走两条路径，将来接撤销栈时也无法统一记录。
+  useEffect(() => {
+    const isTypingTarget = (target: EventTarget | null) =>
+      target instanceof HTMLElement &&
+      (target.isContentEditable || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA');
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const typing = isTypingTarget(event.target);
+
+      if (event.key === 'Escape') {
+        if (!typing) clearSelection();
+        return;
+      }
+      if (typing) return;
+
+      const mod = event.ctrlKey || event.metaKey;
+      const key = event.key.toLowerCase();
+
+      if (mod && key === 'c') {
+        event.preventDefault();
+        copySelection();
+        return;
+      }
+      if (mod && key === 'v') {
+        event.preventDefault();
+        pasteClipboard();
+        return;
+      }
+      if (mod && key === 'a') {
+        event.preventDefault();
+        selectAll();
+        return;
+      }
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        event.preventDefault();
+        deleteSelection();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [clearSelection, copySelection, deleteSelection, pasteClipboard, selectAll]);
 
   // 拖拽期间在 window 上跟踪指针：指针移出画布时幽灵预览仍然跟随，
   // 松手时再判断落点是否在画布内。屏幕坐标经 screenToFlowPosition 换算成世界坐标，
@@ -158,6 +207,8 @@ function Canvas({ onOpenShortcuts }: FlowCanvasProps) {
           connectionLineType={CONNECTION_LINE_TYPE[edgeType]}
           isValidConnection={isValidConnection}
           defaultEdgeOptions={defaultEdgeOptions}
+          deleteKeyCode={null}
+          zoomOnDoubleClick={false}
           onMove={(_, viewport) => setZoom(viewport.zoom)}
           minZoom={0.25}
           maxZoom={2.5}

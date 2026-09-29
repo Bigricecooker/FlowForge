@@ -44,7 +44,9 @@ export default function NodeShape({ kind }: { kind: ShapeKind }) {
       break;
     }
     case 'terminator':
-      geometry = <rect x={s} y={s} width={w - 2 * s} height={h - 2 * s} rx={h / 2} {...PRIMITIVE} />;
+      geometry = (
+        <rect x={s} y={s} width={w - 2 * s} height={h - 2 * s} rx={h / 2} {...PRIMITIVE} />
+      );
       break;
   }
 
