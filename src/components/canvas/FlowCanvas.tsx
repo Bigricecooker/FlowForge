@@ -64,6 +64,10 @@ function Canvas({ onOpenShortcuts }: FlowCanvasProps) {
   const pasteClipboard = useFlowStore((state) => state.pasteClipboard);
   const selectAll = useFlowStore((state) => state.selectAll);
   const clearSelection = useFlowStore((state) => state.clearSelection);
+  const beginTransaction = useFlowStore((state) => state.beginTransaction);
+  const endTransaction = useFlowStore((state) => state.endTransaction);
+  const undo = useFlowStore((state) => state.undo);
+  const redo = useFlowStore((state) => state.redo);
 
   const draggingKind = useDragStore((state) => state.kind);
   const dragPointer = useDragStore((state) => state.pointer);
@@ -123,6 +127,17 @@ function Canvas({ onOpenShortcuts }: FlowCanvasProps) {
         selectAll();
         return;
       }
+      if (mod && key === 'z') {
+        event.preventDefault();
+        if (event.shiftKey) redo();
+        else undo();
+        return;
+      }
+      if (mod && key === 'y') {
+        event.preventDefault();
+        redo();
+        return;
+      }
       if (event.key === 'Delete' || event.key === 'Backspace') {
         event.preventDefault();
         deleteSelection();
@@ -131,7 +146,7 @@ function Canvas({ onOpenShortcuts }: FlowCanvasProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [clearSelection, copySelection, deleteSelection, pasteClipboard, selectAll]);
+  }, [clearSelection, copySelection, deleteSelection, pasteClipboard, redo, selectAll, undo]);
 
   // 拖拽期间在 window 上跟踪指针：指针移出画布时幽灵预览仍然跟随，
   // 松手时再判断落点是否在画布内。屏幕坐标经 screenToFlowPosition 换算成世界坐标，
@@ -202,6 +217,11 @@ function Canvas({ onOpenShortcuts }: FlowCanvasProps) {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
+          // 拖拽是连续手势：开始时记账、结束时才决定是否入栈，避免每帧都产生一步撤销
+          onNodeDragStart={beginTransaction}
+          onNodeDragStop={endTransaction}
+          onSelectionDragStart={beginTransaction}
+          onSelectionDragStop={endTransaction}
           nodeTypes={nodeTypes}
           connectionMode={ConnectionMode.Loose}
           connectionLineType={CONNECTION_LINE_TYPE[edgeType]}
