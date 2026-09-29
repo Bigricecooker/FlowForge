@@ -37,7 +37,15 @@
   padding: 6px 8px;
   border: 1px solid transparent;
   border-radius: var(--radius-md);
+  cursor: grab;
+  touch-action: none;
   user-select: none;
+}
+
+.item:active {
+  cursor: grabbing;
+  border-color: var(--border-strong);
+  background: var(--bg-active);
 }
 
 .item:hover {

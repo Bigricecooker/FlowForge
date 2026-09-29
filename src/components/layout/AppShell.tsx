@@ -5,6 +5,8 @@ import FlowCanvas from '../canvas/FlowCanvas';
 import ShortcutsHelp from '../help/ShortcutsHelp';
 import RightPanel from '../inspector/RightPanel';
 import ShapeLibrary from '../palette/ShapeLibrary';
+import { useFlowStore } from '../../store/flowStore';
+import { useViewStore } from '../../store/viewStore';
 import styles from './AppShell.module.css';
 import ResizableSplitter from './ResizableSplitter';
 import StatusBar from './StatusBar';
@@ -21,6 +23,11 @@ export default function AppShell() {
   const [rightWidth, setRightWidth] = useState(RIGHT.default);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+
+  const zoom = useViewStore((state) => state.zoom);
+  const cursor = useViewStore((state) => state.cursor);
+  const nodeCount = useFlowStore((state) => state.nodes.length);
+  const edgeCount = useFlowStore((state) => state.edges.length);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -83,7 +90,7 @@ export default function AppShell() {
           </aside>
         </div>
 
-        <StatusBar zoom={1} cursor={null} nodeCount={0} edgeCount={0} />
+        <StatusBar zoom={zoom} cursor={cursor} nodeCount={nodeCount} edgeCount={edgeCount} />
       </div>
 
       {helpOpen && <ShortcutsHelp onClose={() => setHelpOpen(false)} />}

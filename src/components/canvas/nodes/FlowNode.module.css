@@ -1,0 +1,43 @@
+.node {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.shape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 1px 1px rgba(16, 24, 40, 0.06));
+}
+
+.primitive {
+  fill: var(--node-fill);
+  stroke: var(--node-stroke);
+  stroke-width: 1.5px;
+  stroke-linejoin: round;
+  transition:
+    stroke 120ms ease,
+    stroke-width 120ms ease;
+}
+
+.node[data-selected] .primitive {
+  stroke: var(--accent);
+  stroke-width: 2px;
+}
+
+.label {
+  position: relative;
+  max-width: 100%;
+  padding: 0 10px;
+  color: var(--text);
+  font-size: var(--fs-md);
+  line-height: 1.35;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
