@@ -1,0 +1,27 @@
+.group {
+  display: inline-flex;
+  padding: 1px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-canvas);
+}
+
+.option {
+  min-width: 42px;
+  padding: 2px 8px;
+  border-radius: calc(var(--radius-md) - 2px);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  line-height: 18px;
+}
+
+.option:hover {
+  color: var(--text);
+}
+
+.option[data-active] {
+  background: var(--bg-panel);
+  box-shadow: var(--shadow-panel);
+  color: var(--accent);
+  font-weight: 600;
+}

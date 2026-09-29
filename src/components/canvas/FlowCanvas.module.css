@@ -59,6 +59,15 @@
   width: 100%;
   height: 100%;
   background: var(--bg-canvas);
+
+  /* 接入项目主题：连线、选中连线、锚点、拖拽中的连线全部走 token */
+  --xy-edge-stroke: var(--edge);
+  --xy-edge-stroke-width: 1.5;
+  --xy-edge-stroke-selected: var(--accent);
+  --xy-connectionline-stroke: var(--accent);
+  --xy-connectionline-stroke-width: 1.5;
+  --xy-handle-background-color: var(--bg-panel);
+  --xy-handle-border-color: var(--accent);
 }
 
 /* React Flow 自带字号与字体族，这里对齐项目排版 token */

@@ -41,3 +41,19 @@
   text-align: center;
   overflow-wrap: anywhere;
 }
+
+/*
+ * 锚点尺寸保持 React Flow 的默认 6px：它按锚点外沿计算连线端点，
+ * 改尺寸会让端点跟着外移。命中区域靠 ::after 撑大，元素自身的盒模型不变，
+ * 因此既好点，端点位置也仍然精准。
+ * 悬停效果只能用 box-shadow：React Flow 用 transform 给锚点定位，动 transform 会让它跑位。
+ */
+.handle::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+}
+
+.handle:hover {
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
