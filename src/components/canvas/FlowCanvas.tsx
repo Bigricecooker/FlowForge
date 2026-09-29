@@ -209,7 +209,7 @@ function Canvas({ onOpenShortcuts }: FlowCanvasProps) {
           className={styles.textButton}
           onClick={handleAutoLayout}
           disabled={nodes.length === 0}
-          title="按连线关系重新分层排布（可用 Ctrl+Z 撤销）"
+          title="按连线关系重新分层排布，并让连线改从朝向对方的一侧出入（可用 Ctrl+Z 撤销）"
         >
           整理布局
         </button>

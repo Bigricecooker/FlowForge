@@ -270,11 +270,16 @@ export const useFlowStore = create<FlowState>((set) => ({
   applyAutoLayout: () =>
     set((state) => {
       if (state.nodes.length === 0) return state;
-      const positions = computeAutoLayout(state.nodes, state.edges);
+      const { positions, handles } = computeAutoLayout(state.nodes, state.edges);
       return withHistory(state, {
         nodes: state.nodes.map((node) => {
           const next = positions.get(node.id);
           return next ? { ...node, position: next } : node;
+        }),
+        // 位置和锚点一起改：否则原来的锚点会落在背向对方的一侧，连线将穿过节点
+        edges: state.edges.map((edge) => {
+          const next = handles.get(edge.id);
+          return next ? { ...edge, ...next } : edge;
         }),
       });
     }),
