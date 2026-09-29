@@ -2,3 +2,6 @@ node_modules
 dist
 release
 package-lock.json
+
+# 工作手册是手写换行的，行宽是刻意控制的；让 Prettier 重排会把可读性弄乱
+AGENTS.md
