@@ -13,7 +13,7 @@
 FlowForge —— 图表（流程图）桌面绘制软件。左图形库、中画布、右暂留区（将来接 AI）、底部状态栏；
 浅色基调；交互为拖拽式绘图 + 箭头连线。
 
-技术栈：Vite 8 · React 19 · TypeScript 6 · @xyflow/react 12 · zustand 5 · dagre · CSS Modules（配 CSS 变量）· Electron（最后阶段接入，尚未开工、尚未占用编号）
+技术栈：Vite 8 · React 19 · TypeScript 6 · @xyflow/react 12 · @tisoap/react-flow-smart-edge（连线避障）· zustand 5 · dagre · CSS Modules（配 CSS 变量）· Electron（最后阶段接入，尚未开工、尚未占用编号）
 
 ## 当前迭代（临时节）
 
@@ -27,11 +27,11 @@ FlowForge —— 图表（流程图）桌面绘制软件。左图形库、中画
 
 目标版本：尚未定 tag（`package.json` 仍是初始化占位值 `0.1.0`）
 
-- 进行中：无
+- 进行中：M8 连线避障（智能边）
 - 待排期（均未开工、未排期，仅备忘）：
   - Electron 套壳与打包
-  - 连线美化：交互式的按方位选锚点、出线桩调优、平行边偏移、自环美化、A\* 绕障
-    （布局时的锚点重挑已完成，见「画布与连线」）
+  - 连线美化：交互式的按方位选锚点、出线桩调优、平行边偏移、自环美化
+    （布局时的锚点重挑与跨层绕障已完成，见「画布与连线」）
   - 保存 / 打开、导出 PNG·SVG
   - 属性面板支持编辑（当前只读）
 - 本阶段已完成：M1–M7（见 `git log`）
@@ -44,6 +44,7 @@ npm run build    # tsc -b && vite build
 npm run lint     # ESLint
 npm run format   # Prettier
 npm run e2e      # 全部端到端回归（会先构建；SKIP_BUILD=1 跳过构建）
+npm run notices  # 重新生成 THIRD-PARTY-NOTICES.md（加/删依赖后必须跑）
 ```
 
 ## 硬约束
@@ -67,8 +68,14 @@ npm run e2e      # 全部端到端回归（会先构建；SKIP_BUILD=1 跳过构
 
 ### 画布与连线
 
-- 连线**当前**只用库内置能力（smoothstep / bezier / straight）。自研连线几何（按方位自动选锚点、
-  出线桩调优、平行边偏移、自环美化、A\* 绕障）是用户明确**后置**的项，不是禁止
+- 连线走 **`@tisoap/react-flow-smart-edge`**（MIT，网格 A\*，默认跑在 Web Worker 里）：三种线型
+  全部映射到它的 smart 变体（`lib/edgeTypes.ts` 的 `toFlowEdgeType`），组件注册表在
+  `components/canvas/FlowCanvas.tsx` 的模块作用域。理由是**库内置边只看两个端点、不感知其他节点**，
+  跨 ≥2 层的边会径直穿过中间层节点（实测 4 种结构里 3 种触发，见 `e2e/diag-edge-obstacles.mjs`）
+- 该库默认 `routeOnlyWhenBlocked`：直线没被挡的边走原生路径，因此通畅的图与接入前**像素级一致**
+- `<SmartEdgeProvider>` 必须包住 `<ReactFlow>`，且 `nodes` 必须是**受控**的（我们是受控的，
+  不要改成 `defaultNodes`）；路由是异步的，测路径前要等它落定
+- 自研连线几何（出线桩调优、平行边偏移、自环美化）仍是**后置**项，不是禁止
 - 线型必须写进每条边（`edge.type`）：React Flow 的 `defaultEdgeOptions` 变更**不会**传导到已渲染的边，
   只影响之后新建的边
 - 库把贝塞尔边注册在 `default` 名下，**没有 `bezier` 这个边型**；对外名字经 `toFlowEdgeType()` 转换
@@ -113,6 +120,7 @@ npm run e2e      # 全部端到端回归（会先构建；SKIP_BUILD=1 跳过构
 | 节点外形、锚点、内联改名 | `components/canvas/nodes/FlowNode.tsx`、`NodeShape.tsx` |
 | 节点/连线的增删改、剪贴板 | `src/store/flowStore.ts` |
 | 边型定义与名字映射 | `src/lib/edgeTypes.ts` |
+| 连线的避障路由 | 边型映射在 `src/lib/edgeTypes.ts`；组件注册与 Provider 在 `components/canvas/FlowCanvas.tsx` |
 | 一键自动布局（dagre） | `src/lib/autoLayout.ts`（纯函数）；按钮与 fitView 在 `components/canvas/FlowCanvas.tsx` |
 | 快捷键浮层的文案内容 | `src/lib/shortcuts.ts`（单一数据源） |
 | 暂留区容器（顶栏分页 + 面板宿主） | `components/inspector/ReservedArea.tsx` |
@@ -132,11 +140,14 @@ npm run e2e      # 全部端到端回归（会先构建；SKIP_BUILD=1 跳过构
 | 连线端点落在锚点中心之外 3px | 库按锚点**外沿**算端点，放大锚点端点就外移 → 保持默认 6px |
 | 整理布局后连线穿过节点 | 布局只搬了节点、没改锚点；"底→底"遇上目标被排到正下方，线只能穿过目标（实测 120 个采样点里 34 个落在节点内）→ 布局时按分层重挑锚点 |
 | E2E 里 `Ctrl+C/V` 无反应 | CDP 传 `nativeVirtualKeyCode` 时 Chrome 把它当浏览器编辑命令拦截，页面收不到 keydown |
+| 跨层连线穿过中间层节点 | 库内置边只看两端点、不感知其他节点；跨 ≥2 层的边径直穿过（实测 4 种结构 3 种触发）→ 换成智能避障边 |
+| 智能边先画原生路径、再替换成绕行结果 | 路由在 Web Worker 里异步完成；断言路径前必须等它落定（现有场景等 600ms，实测稳定） |
 
 坑与回归断言的对应：
 
 - 边型相关的三条 → `e2e-m3.mjs`
 - 连线穿过节点（布局重挑锚点）→ `e2e-layout-edges.mjs`
+- 跨层连线穿过中间层节点（智能边）→ 现由 `e2e/diag-edge-obstacles.mjs` 量化，M8 收尾时转成正式断言
 - CDP 按键被 Chrome 拦截 → 无法自动化，属手工注意事项
 - 沙箱环境类的坑 → 与代码无关，无断言
 - `diag-*.mjs` 是**诊断探针**、不进 `npm run e2e`（只报告、不判失败）；
@@ -203,3 +214,4 @@ npm run e2e      # 全部端到端回归（会先构建；SKIP_BUILD=1 跳过构
 | 设计变量取值 | `src/styles/tokens.css` |
 | 图形的尺寸与文案 | `src/components/palette/shapeDefs.ts` |
 | 快捷键有哪些 | `src/lib/shortcuts.ts` |
+| 第三方组件的许可与作者 | `THIRD-PARTY-NOTICES.md`（`npm run notices` 的生成物，别手改） |

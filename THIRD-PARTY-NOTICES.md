@@ -3,12 +3,13 @@
 本项目的产物包含下列开源组件。**本文件由 `npm run notices` 生成，请勿手工编辑**——
 它从 `package.json` 的 `dependencies` 出发递归读取各包的真实元数据，因此不会过期。
 
-覆盖范围：随产物分发的运行时依赖及其传递依赖，共 **27** 个（开发依赖不随产物分发，未列入）。
+覆盖范围：随产物分发的运行时依赖及其传递依赖，共 **28** 个（开发依赖不随产物分发，未列入）。
 
-许可分布：MIT × 18、ISC × 8、BSD-3-Clause × 1
+许可分布：MIT × 19、ISC × 8、BSD-3-Clause × 1
 
 | 组件 | 版本 | 许可 | 作者 / 维护者 | 仓库 |
 |---|---|---|---|---|
+| [@tisoap/react-flow-smart-edge](https://www.npmjs.com/package/@tisoap/react-flow-smart-edge) | 5.0.0 | MIT | Tiso Alvarez Puccinelli | <https://github.com/tisoap/react-flow-smart-edge> |
 | [@types/d3-color](https://www.npmjs.com/package/@types/d3-color) | 3.1.3 | MIT | Tom Wanzek | <https://github.com/DefinitelyTyped/DefinitelyTyped> |
 | [@types/d3-drag](https://www.npmjs.com/package/@types/d3-drag) | 3.0.7 | MIT | Tom Wanzek | <https://github.com/DefinitelyTyped/DefinitelyTyped> |
 | [@types/d3-interpolate](https://www.npmjs.com/package/@types/d3-interpolate) | 3.0.4 | MIT | Tom Wanzek | <https://github.com/DefinitelyTyped/DefinitelyTyped> |

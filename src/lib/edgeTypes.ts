@@ -13,9 +13,21 @@ export const EDGE_TYPES: readonly EdgeTypeOption[] = [
   { value: 'straight', label: '直线', hint: '两端直连' },
 ];
 
-/** React Flow 内置边型注册表里，贝塞尔边注册在 `default` 名下，没有 `bezier`。 */
+/**
+ * 落到 React Flow 的边型名。三种线型**全部**使用"智能避障"变体：
+ * 内置边只看两个端点、不感知其他节点，跨层边会径直穿过中间层的节点
+ * （诊断实测：4 种结构里 3 种触发，只要存在跨 ≥2 层的边就大概率穿）。
+ * 智能边用网格 A* 寻路，被挡时才绕；直线本来就通畅的边走原生路径，开销可忽略。
+ * 组件注册表在 `components/canvas/FlowCanvas.tsx`（模块作用域）。
+ */
+const SMART_EDGE_TYPES: Record<EdgeType, string> = {
+  smoothstep: 'smart-smoothstep',
+  bezier: 'smart-bezier',
+  straight: 'smart-straight',
+};
+
 export function toFlowEdgeType(edgeType: EdgeType): string {
-  return edgeType === 'bezier' ? 'default' : edgeType;
+  return SMART_EDGE_TYPES[edgeType];
 }
 
 /**

@@ -10,6 +10,12 @@ import {
   useReactFlow,
 } from '@xyflow/react';
 import type { Connection, DefaultEdgeOptions, Edge } from '@xyflow/react';
+import {
+  SmartBezierEdge,
+  SmartEdgeProvider,
+  SmartSmoothStepEdge,
+  SmartStraightEdge,
+} from '@tisoap/react-flow-smart-edge';
 
 import { EDGE_MARKER_COLOR } from '../../lib/edgeTypes';
 import type { EdgeType } from '../../lib/edgeTypes';
@@ -23,6 +29,13 @@ import FlowNodeView from './nodes/FlowNode';
 
 /** 定义在模块作用域，避免每次渲染重建导致 React Flow 整树重挂。 */
 const nodeTypes = { flow: FlowNodeView };
+
+/** 与 lib/edgeTypes.ts 的 toFlowEdgeType 对应：三种线型都走智能避障变体。 */
+const edgeTypes = {
+  'smart-smoothstep': SmartSmoothStepEdge,
+  'smart-bezier': SmartBezierEdge,
+  'smart-straight': SmartStraightEdge,
+};
 
 /** 与 tokens.css 的 --grid-dot 保持一致（SVG 属性不解析 CSS 变量）。 */
 const GRID_COLOR = '#d9dde3';
@@ -231,32 +244,35 @@ function Canvas({ onOpenShortcuts }: FlowCanvasProps) {
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setCursor(null)}
       >
-        <ReactFlow
-          className={styles.flow}
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          // 拖拽是连续手势：开始时记账、结束时才决定是否入栈，避免每帧都产生一步撤销
-          onNodeDragStart={beginTransaction}
-          onNodeDragStop={endTransaction}
-          onSelectionDragStart={beginTransaction}
-          onSelectionDragStop={endTransaction}
-          nodeTypes={nodeTypes}
-          connectionMode={ConnectionMode.Loose}
-          connectionLineType={CONNECTION_LINE_TYPE[edgeType]}
-          isValidConnection={isValidConnection}
-          defaultEdgeOptions={defaultEdgeOptions}
-          deleteKeyCode={null}
-          zoomOnDoubleClick={false}
-          onMove={(_, viewport) => setZoom(viewport.zoom)}
-          minZoom={0.25}
-          maxZoom={2.5}
-          proOptions={{ hideAttribution: true }}
-        >
-          <Background gap={20} size={1} color={GRID_COLOR} />
-        </ReactFlow>
+        <SmartEdgeProvider nodes={nodes}>
+          <ReactFlow
+            className={styles.flow}
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            // 拖拽是连续手势：开始时记账、结束时才决定是否入栈，避免每帧都产生一步撤销
+            onNodeDragStart={beginTransaction}
+            onNodeDragStop={endTransaction}
+            onSelectionDragStart={beginTransaction}
+            onSelectionDragStop={endTransaction}
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            connectionMode={ConnectionMode.Loose}
+            connectionLineType={CONNECTION_LINE_TYPE[edgeType]}
+            isValidConnection={isValidConnection}
+            defaultEdgeOptions={defaultEdgeOptions}
+            deleteKeyCode={null}
+            zoomOnDoubleClick={false}
+            onMove={(_, viewport) => setZoom(viewport.zoom)}
+            minZoom={0.25}
+            maxZoom={2.5}
+            proOptions={{ hideAttribution: true }}
+          >
+            <Background gap={20} size={1} color={GRID_COLOR} />
+          </ReactFlow>
+        </SmartEdgeProvider>
 
         {nodes.length === 0 && <p className={styles.hint}>从左侧图形库拖拽图形到画布</p>}
 
