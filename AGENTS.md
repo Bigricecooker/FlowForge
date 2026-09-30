@@ -43,6 +43,7 @@ npm run dev      # 开发服务器 http://localhost:5173
 npm run build    # tsc -b && vite build
 npm run lint     # ESLint
 npm run format   # Prettier
+npm run e2e      # 全部端到端回归（会先构建；SKIP_BUILD=1 跳过构建）
 ```
 
 ## 硬约束
@@ -118,6 +119,7 @@ npm run format   # Prettier
 | **新增一个暂留区界面** | `components/inspector/panels.tsx`（注册表加一条即可） |
 | 右侧控件栏 | `components/inspector/PanelRail.tsx` |
 | 节点属性面板 | `components/inspector/NodePropertiesPanel.tsx` |
+| 端到端回归场景、诊断探针 | `e2e/`（`e2e-*.mjs` 进 `npm run e2e`；`diag-*.mjs` 只做诊断，见「已踩过的坑」） |
 
 ## 已踩过的坑
 
@@ -130,6 +132,15 @@ npm run format   # Prettier
 | 连线端点落在锚点中心之外 3px | 库按锚点**外沿**算端点，放大锚点端点就外移 → 保持默认 6px |
 | 整理布局后连线穿过节点 | 布局只搬了节点、没改锚点；"底→底"遇上目标被排到正下方，线只能穿过目标（实测 120 个采样点里 34 个落在节点内）→ 布局时按分层重挑锚点 |
 | E2E 里 `Ctrl+C/V` 无反应 | CDP 传 `nativeVirtualKeyCode` 时 Chrome 把它当浏览器编辑命令拦截，页面收不到 keydown |
+
+坑与回归断言的对应：
+
+- 边型相关的三条 → `e2e-m3.mjs`
+- 连线穿过节点（布局重挑锚点）→ `e2e-layout-edges.mjs`
+- CDP 按键被 Chrome 拦截 → 无法自动化，属手工注意事项
+- 沙箱环境类的坑 → 与代码无关，无断言
+- `diag-*.mjs` 是**诊断探针**、不进 `npm run e2e`（只报告、不判失败）；
+  但它依赖的界面结构变了必须**报错退出**（退出码 2），不许输出无意义的报告
 
 ## 工作方式
 
@@ -155,7 +166,29 @@ npm run format   # Prettier
   tag 说明里写清这个版本含哪些工作包；`package.json` 的 `version` 与 tag 保持一致。
   **当前尚未打过任何 tag**，版本号仍是初始化占位值
 
-- 每阶段收尾依次跑：`npx tsc -b` → `npm run lint` → `npm run build` → 端到端验证
+- **回归纪律（每次改动都必须做到）**
+  1. **修一个 bug，就把它固化成一条断言**，写进 `e2e/` 里合适的场景；
+     新场景命名为 `e2e-*.mjs`，会被 `npm run e2e` 自动收进回归
+  2. 收尾按顺序跑：`npx tsc -b` → `npm run lint` → `npm run build` → `npm run e2e`
+  3. 提交信息里写**实测数字**（几个场景通过、共几条断言、关键测量值），不写"已修复"
+  4. 改完必须**回头重跑全量**。历史教训：M7 换掉 RightPanel 时删除了 M4 断言依赖的元素，
+     因为没重跑，那条断言静默失效了很久（见提交 c75bfc0）
+  5. 自动化覆盖不到的行为（手感、观感、性能感受）必须在提交信息里写明
+     "未覆盖 + 人工验收方式"，不允许默认当作已覆盖
+
+- **动底层或影响面大的改动，先找用户确认**
+  - 判定标准（命中任一条即算"底层 / 大影响"）：
+    - 状态层机制：store 分层、撤销栈、历史记录方式
+    - 画布引擎或渲染方式：React Flow 版本、DOM/SVG → Canvas / WebGL
+    - 全局设计变量层（`tokens.css`）大改、全局样式策略变更
+    - 构建与工具链：Vite / TypeScript / ESLint 配置
+    - 依赖大版本升级或替换
+    - "接口"类：目录结构、组件边界、暂留区面板注册表协议
+    - 一次改动跨越 ≥3 个模块，或改动文件数 > 15
+    - 重写已提交的历史
+  - 请求确认时给出四句话：**为什么必须动底层 / 影响面多大 / 怎么回滚 / 怎么验证**
+  - 不需要确认（避免过度打扰）：单组件内部改动、新增一个面板、样式微调、
+    新增测试、更新文档、修单个 bug（前提是不碰上面那些）
 - 端到端验证用 CDP 驱动 headless Chrome 做**真实交互**（真拖拽、真按键），不要写"只断言 DOM 存在"的假验证
 - 报告结论必须给实测数字（偏差多少像素、几项通过），不要只说"已实现"
 - 遇到测试失败先分清是产品缺陷还是测试脚本问题，必要时写对照脚本证明
