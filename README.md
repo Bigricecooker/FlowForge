@@ -32,4 +32,23 @@ src/
     help/       快捷键浮层
   lib/          快捷键表等无 UI 逻辑
   styles/       设计变量与全局样式
+e2e/            端到端回归（npm run e2e）与诊断探针
+scripts/        工具脚本（如生成第三方组件致谢）
 ```
+
+## 许可
+
+本项目以 [MIT 许可](LICENSE) 开源。
+
+## 致谢
+
+本项目建立在许多优秀的开源项目之上。随产物分发的运行时依赖及其传递依赖的完整清单
+（组件、版本、许可、作者、仓库）见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)，
+该文件由 `npm run notices` 从各包的真实元数据生成，不会过期。
+
+其中最关键的几个：
+
+- [React Flow](https://reactflow.dev)（MIT）——画布与连线引擎
+- [dagre](https://github.com/dagrejs/dagre)（MIT）——分层自动布局
+- [zustand](https://github.com/pmndrs/zustand)（MIT）——状态管理
+- [React](https://react.dev)（MIT）——界面框架

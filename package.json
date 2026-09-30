@@ -2,6 +2,7 @@
   "name": "flowforge",
   "private": true,
   "version": "0.1.0",
+  "license": "MIT",
   "type": "module",
   "description": "图表桌面绘制软件",
   "scripts": {
@@ -10,7 +11,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "e2e": "node e2e/run.mjs"
+    "e2e": "node e2e/run.mjs",
+    "notices": "node scripts/gen-notices.mjs"
   },
   "dependencies": {
     "@xyflow/react": "^12.12.0",

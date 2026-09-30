@@ -5,3 +5,6 @@ package-lock.json
 
 # 工作手册是手写换行的，行宽是刻意控制的；让 Prettier 重排会把可读性弄乱
 AGENTS.md
+
+# 由 npm run notices 生成；Prettier 重排会让"生成结果"和"已提交内容"不一致
+THIRD-PARTY-NOTICES.md
