@@ -13,7 +13,7 @@
 FlowForge —— 图表（流程图）桌面绘制软件。左图形库、中画布、右暂留区（将来接 AI）、底部状态栏；
 浅色基调；交互为拖拽式绘图 + 箭头连线。
 
-技术栈：Vite 8 · React 19 · TypeScript 6 · @xyflow/react 12 · @tisoap/react-flow-smart-edge（连线避障）· zustand 5 · dagre · CSS Modules（配 CSS 变量）· Electron（最后阶段接入，尚未开工、尚未占用编号）
+技术栈：Vite 8 · React 19 · TypeScript 6 · @xyflow/react 12（画布）· @tisoap/react-flow-smart-edge 5（连线路由）· zustand 5（状态）· dagre 0.8（分层布局）· nanoid 6（id）· CSS Modules + CSS 变量 · Electron（最后阶段接入，尚未开工、尚未占用编号）。完整清单见 `README.md` 与 `THIRD-PARTY-NOTICES.md`
 
 ## 当前迭代（临时节）
 
