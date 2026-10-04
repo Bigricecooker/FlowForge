@@ -25,6 +25,7 @@ import { useViewStore } from '../../store/viewStore';
 import ShapePreview from '../palette/ShapePreview';
 import EdgeTypeSwitch from './EdgeTypeSwitch';
 import styles from './FlowCanvas.module.css';
+import { withFlowPulse } from './FlowPulseEdge';
 import FlowNodeView from './nodes/FlowNode';
 
 /** 定义在模块作用域，避免每次渲染重建导致 React Flow 整树重挂。 */
@@ -32,9 +33,9 @@ const nodeTypes = { flow: FlowNodeView };
 
 /** 与 lib/edgeTypes.ts 的 toFlowEdgeType 对应：三种线型都走智能避障变体。 */
 const edgeTypes = {
-  'smart-smoothstep': SmartSmoothStepEdge,
-  'smart-bezier': SmartBezierEdge,
-  'smart-straight': SmartStraightEdge,
+  'smart-smoothstep': withFlowPulse(SmartSmoothStepEdge, 'smart-smoothstep'),
+  'smart-bezier': withFlowPulse(SmartBezierEdge, 'smart-bezier'),
+  'smart-straight': withFlowPulse(SmartStraightEdge, 'smart-straight'),
 };
 
 /** 与 tokens.css 的 --grid-dot 保持一致（SVG 属性不解析 CSS 变量）。 */

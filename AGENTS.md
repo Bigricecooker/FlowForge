@@ -121,6 +121,7 @@ npm run notices  # 重新生成 THIRD-PARTY-NOTICES.md（加/删依赖后必须�
 | 节点/连线的增删改、剪贴板 | `src/store/flowStore.ts` |
 | 边型定义与名字映射 | `src/lib/edgeTypes.ts` |
 | 连线的避障路由 | 边型映射在 `src/lib/edgeTypes.ts`；组件注册与 Provider 在 `components/canvas/FlowCanvas.tsx` |
+| 选中连线的流动红点 | `components/canvas/FlowPulseEdge.tsx`（沿智能边最终 SVG 路径运动） |
 | 一键自动布局（dagre） | `src/lib/autoLayout.ts`（纯函数）；按钮与 fitView 在 `components/canvas/FlowCanvas.tsx` |
 | 快捷键浮层的文案内容 | `src/lib/shortcuts.ts`（单一数据源） |
 | 暂留区容器（顶栏分页 + 面板宿主） | `components/inspector/ReservedArea.tsx` |

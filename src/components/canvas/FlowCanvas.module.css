@@ -98,6 +98,12 @@
   text-align: left;
 }
 
+.flowPulse {
+  r: var(--flow-pulse-radius);
+  fill: var(--flow-pulse-color);
+  pointer-events: none;
+}
+
 .hint {
   position: absolute;
   inset: 0;

@@ -26,6 +26,8 @@
   --accent: #2563eb;
   --accent-soft: #eaf1fe;
   --edge: #94a3b8;
+  --flow-pulse-color: #ef4444;
+  --flow-pulse-radius: 4px;
   --grid-dot: #d9dde3;
 
   /* ---- 节点 ---- */
