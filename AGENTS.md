@@ -71,7 +71,7 @@ npm run notices  # 重新生成 THIRD-PARTY-NOTICES.md（加/删依赖后必须�
 - 连线走 **`@tisoap/react-flow-smart-edge`**（MIT，网格 A\*，默认跑在 Web Worker 里）：三种线型
   全部映射到它的 smart 变体（`lib/edgeTypes.ts` 的 `toFlowEdgeType`），组件注册表在
   `components/canvas/FlowCanvas.tsx` 的模块作用域。理由是**库内置边只看两个端点、不感知其他节点**，
-  跨 ≥2 层的边会径直穿过中间层节点（实测 4 种结构里 3 种触发，见 `e2e/diag-edge-obstacles.mjs`）
+  跨 ≥2 层的边会径直穿过中间层节点（旧路由实测 4 种结构里 3 种触发；当前回归见 `e2e/e2e-edge-obstacles.mjs`）
 - 该库默认 `routeOnlyWhenBlocked`：直线没被挡的边走原生路径，因此通畅的图与接入前**像素级一致**
 - `<SmartEdgeProvider>` 必须包住 `<ReactFlow>`，且 `nodes` 必须是**受控**的（我们是受控的，
   不要改成 `defaultNodes`）；路由是异步的，测路径前要等它落定
@@ -148,7 +148,7 @@ npm run notices  # 重新生成 THIRD-PARTY-NOTICES.md（加/删依赖后必须�
 
 - 边型相关的三条 → `e2e-m3.mjs`
 - 连线穿过节点（布局重挑锚点）→ `e2e-layout-edges.mjs`
-- 跨层连线穿过中间层节点（智能边）→ 现由 `e2e/diag-edge-obstacles.mjs` 量化，M8 收尾时转成正式断言
+- 跨层连线穿过中间层节点（智能边）→ `e2e/e2e-edge-obstacles.mjs` 的 A/B/D 跨层与 C 对照断言
 - CDP 按键被 Chrome 拦截 → 无法自动化，属手工注意事项
 - 沙箱环境类的坑 → 与代码无关，无断言
 - `diag-*.mjs` 是**诊断探针**、不进 `npm run e2e`（只报告、不判失败）；
