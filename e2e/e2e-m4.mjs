@@ -308,6 +308,22 @@ await doubleClick(spotA.x, spotA.y);
 const editing = await state();
 record('双击节点打开内联编辑框', editing.editorOpen, `编辑框存在：${editing.editorOpen}`);
 record('双击不触发画布缩放', editing.zoom === built.zoom, `缩放 transform 未变：${editing.zoom}`);
+const editorAppearance = await asJson(`(() => {
+  const editor = document.querySelector('textarea[aria-label="节点文字"]');
+  const style = getComputedStyle(editor);
+  return JSON.stringify({
+    outlineStyle: style.outlineStyle,
+    borderWidth: style.borderWidth,
+    background: style.backgroundColor,
+  });
+})()`);
+record(
+  '编辑文字时不出现输入框边框或底色',
+  editorAppearance.outlineStyle === 'none' &&
+    editorAppearance.borderWidth === '0px' &&
+    editorAppearance.background === 'rgba(0, 0, 0, 0)',
+  JSON.stringify(editorAppearance),
+);
 
 await evaluate(`(() => {
   const area = document.querySelector('textarea[aria-label="节点文字"]');

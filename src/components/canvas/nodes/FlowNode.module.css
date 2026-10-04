@@ -47,10 +47,14 @@
   width: calc(100% - 16px);
   min-width: 0;
   border: 0;
-  border-radius: var(--radius-sm);
-  background: var(--accent-soft);
+  background: transparent;
   font-family: inherit;
   resize: none;
+  outline: none;
+}
+
+/* 权重高于 global.css 的 :focus-visible，编辑时不出现第二层方框。 */
+.editor:focus-visible {
   outline: none;
 }
 
