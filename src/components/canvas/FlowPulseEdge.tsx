@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import type { ComponentType } from 'react';
 import { useStore } from '@xyflow/react';
 import type { EdgeProps } from '@xyflow/react';
@@ -17,7 +17,7 @@ export function withFlowPulse(
 ) {
   return function FlowPulseEdge(props: EdgeProps) {
     const groupRef = useRef<SVGGElement>(null);
-    const pathId = `flow-pulse-${useId().replaceAll(':', '')}`;
+    const pulseRef = useRef<SVGPathElement>(null);
     const touchesSelectedNode = useStore((state) =>
       Boolean(
         state.nodeLookup.get(props.source)?.selected ||
@@ -29,51 +29,33 @@ export function withFlowPulse(
     useEffect(() => {
       if (!active) return;
       const group = groupRef.current;
-      if (!group) return;
+      const pulse = pulseRef.current;
+      if (!group || !pulse) return;
 
-      let currentPath: SVGPathElement | null = null;
       const bindPath = () => {
-        const nextPath = group.querySelector<SVGPathElement>('.react-flow__edge-path');
-        if (nextPath === currentPath) return;
-        currentPath?.removeAttribute('id');
-        nextPath?.setAttribute('id', pathId);
-        currentPath = nextPath;
+        const drawn = group.querySelector<SVGPathElement>('.react-flow__edge-path');
+        const nextD = drawn?.getAttribute('d') ?? '';
+        if (pulse.getAttribute('d') !== nextD) pulse.setAttribute('d', nextD);
       };
 
       bindPath();
-      // 智能边先画原生路径，再用 Worker 的避障结果替换。只监听结构变更，
-      // 同一条 path 的 d 变化会由 SVG mpath 自动跟随。
+      // 智能边先画原生路径，再用 Worker 的避障结果替换；路径也可能在拖动时改写 d。
+      // 仅活动边同步这些变化，不在动画的每一帧运行 JavaScript。
       const observer = new MutationObserver(bindPath);
-      observer.observe(group, { childList: true, subtree: true });
-      return () => {
-        observer.disconnect();
-        currentPath?.removeAttribute('id');
-      };
-    }, [active, pathId]);
+      observer.observe(group, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['d'],
+      });
+      return () => observer.disconnect();
+    }, [active]);
 
     return (
       <g ref={groupRef}>
         <SmartEdgeComponent {...props} type={props.type ?? edgeType} data={props.data ?? {}} />
         {active && (
-          <circle className={styles.flowPulse}>
-            <animateMotion
-              dur="3s"
-              repeatCount="indefinite"
-              calcMode="linear"
-              keyPoints="0;1;1"
-              keyTimes="0;0.72;1"
-            >
-              <mpath href={`#${pathId}`} />
-            </animateMotion>
-            <animate
-              attributeName="opacity"
-              values="1;0;0"
-              keyTimes="0;0.73;1"
-              calcMode="discrete"
-              dur="3s"
-              repeatCount="indefinite"
-            />
-          </circle>
+          <path ref={pulseRef} className={styles.flowPulse} data-flow-pulse="" aria-hidden="true" />
         )}
       </g>
     );

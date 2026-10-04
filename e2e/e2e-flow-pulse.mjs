@@ -154,18 +154,21 @@ await sleep(600);
 const state = () =>
   readJson(`(() => JSON.stringify([...document.querySelectorAll('.react-flow__edge')].map((edge) => {
     const path = edge.querySelector('.react-flow__edge-path');
-    const dot = edge.querySelector('circle');
+    const pulse = edge.querySelector('[data-flow-pulse]');
+    const style = pulse ? getComputedStyle(pulse) : null;
     return {
-      dot: !!dot,
-      pathBound: !!dot && !!path?.id && dot.querySelector('mpath')?.getAttribute('href') === '#' + path.id,
-      fill: dot ? getComputedStyle(dot).fill : null,
+      pulse: !!pulse,
+      pathBound: !!pulse && pulse.getAttribute('d') === path?.getAttribute('d'),
+      stroke: style?.stroke ?? null,
+      width: style?.strokeWidth ?? null,
+      dash: style?.strokeDasharray ?? null,
     };
   })))()`);
 
 const initial = await state();
 record(
-  '三条连线建立后不生成动画红点',
-  initial.length === 3 && initial.every((edge) => !edge.dot),
+  '三条连线建立后不生成流动圆点',
+  initial.length === 3 && initial.every((edge) => !edge.pulse),
   JSON.stringify(initial),
 );
 
@@ -179,62 +182,36 @@ await click(await edgeMidpoint(0));
 const one = await state();
 record(
   '选中一条连线只激活该线',
-  one.filter((edge) => edge.dot).length === 1 && one[0].dot,
+  one.filter((edge) => edge.pulse).length === 1 && one[0].pulse,
   JSON.stringify(one),
 );
 record(
-  '红点绑定可见路径并取红色主题变量',
-  one[0].pathBound && one[0].fill === 'rgb(239, 68, 68)',
+  '小红点沿可见路径密集排列',
+  one[0].pathBound &&
+    one[0].stroke === 'rgb(239, 68, 68)' &&
+    one[0].width === '3px' &&
+    one[0].dash === '0px, 20px',
   JSON.stringify(one[0]),
 );
 
-const motion = () =>
-  readJson(`(() => {
-    const edge = document.querySelectorAll('.react-flow__edge')[0];
-    const path = edge.querySelector('.react-flow__edge-path');
-    const dot = edge.querySelector('circle');
-    const r = dot.getBoundingClientRect();
-    const matrix = path.getScreenCTM();
-    const first = path.getPointAtLength(0).matrixTransform(matrix);
-    const last = path.getPointAtLength(path.getTotalLength()).matrixTransform(matrix);
-    return JSON.stringify({
-      dot: { x: r.x + r.width / 2, y: r.y + r.height / 2 },
-      start: { x: first.x, y: first.y },
-      end: { x: last.x, y: last.y },
-    });
-  })()`);
-await evaluate(
-  `document.querySelectorAll('.react-flow__edge circle animate').forEach((animation) => animation.beginElement())`,
-);
-await evaluate(`document.querySelector('.react-flow__edge circle animateMotion').beginElement()`);
-await sleep(100);
-const atStart = await motion();
-await sleep(1800);
-const atEnd = await motion();
-const startDelta = Math.hypot(atStart.dot.x - atStart.start.x, atStart.dot.y - atStart.start.y);
-const endDelta = Math.hypot(atEnd.dot.x - atEnd.end.x, atEnd.dot.y - atEnd.end.y);
-const moved = Math.hypot(atStart.dot.x - atEnd.dot.x, atStart.dot.y - atEnd.dot.y);
-record(
-  '红点从起点移动到终点',
-  startDelta < 15 && endDelta < 20 && moved > 35,
-  `起点偏差 ${startDelta.toFixed(1)}px，终点偏差 ${endDelta.toFixed(1)}px，位移 ${moved.toFixed(1)}px`,
-);
-const pause = await readJson(`(async () => {
-  const dot = document.querySelector('.react-flow__edge circle');
-  const animation = dot.querySelector('animate');
-  const svg = dot.ownerSVGElement;
-  const start = animation.getStartTime();
-  svg.setCurrentTime(start + 2.5);
+const movement = await readJson(`(async () => {
+  const pulse = document.querySelector('.react-flow__edge [data-flow-pulse]');
+  const animation = pulse.getAnimations()[0];
+  animation.pause();
+  animation.currentTime = 100;
   await new Promise(requestAnimationFrame);
-  const during = getComputedStyle(dot).opacity;
-  svg.setCurrentTime(start + 3.2);
+  const early = parseFloat(getComputedStyle(pulse).strokeDashoffset);
+  animation.currentTime = 400;
   await new Promise(requestAnimationFrame);
-  return JSON.stringify({ during, after: getComputedStyle(dot).opacity });
+  const late = parseFloat(getComputedStyle(pulse).strokeDashoffset);
+  const length = pulse.getTotalLength();
+  animation.play();
+  return JSON.stringify({ early, late, length });
 })()`);
 record(
-  '抵达终点后暂隐并再次出现',
-  pause.during === '0' && pause.after === '1',
-  `暂隐 ${pause.during}，下一轮 ${pause.after}`,
+  '多个圆点从起点持续向终点流动',
+  movement.length > 60 && movement.late < movement.early - 5,
+  `路径 ${movement.length.toFixed(1)}px，偏移 ${movement.early.toFixed(1)} → ${movement.late.toFixed(1)}px`,
 );
 
 const curveButton = await readJson(`(() => {
@@ -246,7 +223,7 @@ await sleep(600);
 const afterTypeChange = await state();
 record(
   '切换线型后红点仍绑定当前路径',
-  afterTypeChange.length === 3 && afterTypeChange[0].dot && afterTypeChange[0].pathBound,
+  afterTypeChange.length === 3 && afterTypeChange[0].pulse && afterTypeChange[0].pathBound,
   JSON.stringify(afterTypeChange),
 );
 
@@ -259,7 +236,7 @@ await click(await nodeCenter(1));
 const two = await state();
 record(
   '选中一个节点激活所有入边和出边',
-  two.map((edge) => edge.dot).join(',') === 'true,true,false',
+  two.map((edge) => edge.pulse).join(',') === 'true,true,false',
   JSON.stringify(two),
 );
 
@@ -283,7 +260,7 @@ await send('Input.dispatchKeyEvent', {
 const three = await state();
 record(
   '多选节点激活相邻连线的并集',
-  three.length === 3 && three.every((edge) => edge.dot && edge.pathBound),
+  three.length === 3 && three.every((edge) => edge.pulse && edge.pathBound),
   JSON.stringify(three),
 );
 
@@ -295,7 +272,7 @@ await click({ x: left + 40, y: top + 520 });
 const cleared = await state();
 record(
   '取消选中后移除全部动画红点',
-  cleared.every((edge) => !edge.dot),
+  cleared.every((edge) => !edge.pulse),
   JSON.stringify(cleared),
 );
 
@@ -313,7 +290,7 @@ const obstacleRoute = await readJson(`(() => {
 })()`);
 record(
   '异步避障路径上的红点仍绑定可见连线',
-  routed.length === 4 && routed[3].dot && routed[3].pathBound && obstacleRoute.crossings === 0,
+  routed.length === 4 && routed[3].pulse && routed[3].pathBound && obstacleRoute.crossings === 0,
   `路径绑定 ${routed[3]?.pathBound}，80 个采样点中穿越 ${obstacleRoute.crossings} 个`,
 );
 record('运行期无警告或异常', warnings.length === 0, warnings.join(' | ') || '无');

@@ -99,9 +99,19 @@
 }
 
 .flowPulse {
-  r: var(--flow-pulse-radius);
-  fill: var(--flow-pulse-color);
+  fill: none;
+  stroke: var(--flow-pulse-color);
+  stroke-width: var(--flow-pulse-width);
+  stroke-linecap: round;
+  stroke-dasharray: 0 var(--flow-pulse-spacing);
   pointer-events: none;
+  animation: flowPulse var(--flow-pulse-period) linear infinite;
+}
+
+@keyframes flowPulse {
+  to {
+    stroke-dashoffset: calc(-1 * var(--flow-pulse-spacing));
+  }
 }
 
 .hint {
